@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/bff")
@@ -27,7 +28,27 @@ public class BffController {
 
     @GetMapping("/assets")
     public List<Asset> getAllAssets(@RequestHeader("Authorization") String accessToken) {
-        return bffService.getAllAssets(accessToken);
+        String accessTokenTrunked = accessToken.substring(7);
+        return bffService.getAllAssets(accessTokenTrunked);
+    }
+
+    @PostMapping("/assets")
+    public Asset createAsset(@RequestBody Asset asset, @RequestHeader("Authorization") String accessToken) {
+        String accessTokenTrunked = accessToken.substring(7);
+        return bffService.createAsset(accessTokenTrunked, asset);
+    }
+
+    @PatchMapping("/assets/{id}")
+    public Asset updateAsset(@PathVariable Long id, @RequestBody Map<String, Object> updates, @RequestHeader("Authorization") String accessToken) {
+        String accessTokenTrunked = accessToken.substring(7);
+        return bffService.updateAsset(accessTokenTrunked, id, updates);
+    }
+
+    @DeleteMapping("/assets/{id}")
+    public ResponseEntity<String> deleteAsset(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+        String accessTokenTrunked = accessToken.substring(7);
+        bffService.removeAsset(accessTokenTrunked, id);
+        return ResponseEntity.ok("Asset removed successfully");
     }
 }
 

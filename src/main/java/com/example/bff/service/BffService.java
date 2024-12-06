@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -50,55 +49,74 @@ public class BffService {
             );
             return response.getBody();
         } catch (HttpClientErrorException e) {
-            // Log only necessary details for debugging
             String errorMessage = e.getResponseBodyAsString();
             HttpStatusCode statusCode = e.getStatusCode();
 
-            // Create a meaningful exception or response for the user
             throw new CustomClientException(statusCode, errorMessage);
         }
     }
 
 
     public Asset createAsset(String accessToken, Asset asset) {
-        HttpHeaders headers = createHeadersWithToken(accessToken);
-        HttpEntity<Asset> entity = new HttpEntity<>(asset, headers);
+        try {
+            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpEntity<Asset> entity = new HttpEntity<>(asset, headers);
 
-        ResponseEntity<Asset> response = restTemplate.exchange(
-                assetApiUrl,
-                HttpMethod.POST,
-                entity,
-                Asset.class
-        );
-        return response.getBody();
+            ResponseEntity<Asset> response = restTemplate.exchange(
+                    assetApiUrl,
+                    HttpMethod.POST,
+                    entity,
+                    Asset.class
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            String errorMessage = e.getResponseBodyAsString();
+            HttpStatusCode statusCode = e.getStatusCode();
+
+            throw new CustomClientException(statusCode, errorMessage);
+        }
     }
 
     public Asset updateAsset(String accessToken, Long id, Map<String, Object> updates) {
-        HttpHeaders headers = createHeadersWithToken(accessToken);
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(updates, headers);
+        try {
+            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(updates, headers);
 
-        String updateUrl = String.format("%s/%d", assetApiUrl, id);
-        ResponseEntity<Asset> response = restTemplate.exchange(
-                updateUrl,
-                HttpMethod.PATCH,
-                entity,
-                Asset.class
-        );
-        return response.getBody();
+            String updateUrl = String.format("%s/%d", assetApiUrl, id);
+            ResponseEntity<Asset> response = restTemplate.exchange(
+                    updateUrl,
+                    HttpMethod.PATCH,
+                    entity,
+                    Asset.class
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            String errorMessage = e.getResponseBodyAsString();
+            HttpStatusCode statusCode = e.getStatusCode();
+
+            throw new CustomClientException(statusCode, errorMessage);
+        }
     }
 
     public Asset removeAsset(String accessToken, Long id) {
-        HttpHeaders headers = createHeadersWithToken(accessToken);
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        try {
+            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        String deleteUrl = String.format("%s/%d", assetApiUrl, id);
-        ResponseEntity<Asset> response = restTemplate.exchange(
-                deleteUrl,
-                HttpMethod.DELETE,
-                entity,
-                Asset.class
-        );
-        return response.getBody();
+            String deleteUrl = String.format("%s/%d", assetApiUrl, id);
+            ResponseEntity<Asset> response = restTemplate.exchange(
+                    deleteUrl,
+                    HttpMethod.DELETE,
+                    entity,
+                    Asset.class
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            String errorMessage = e.getResponseBodyAsString();
+            HttpStatusCode statusCode = e.getStatusCode();
+
+            throw new CustomClientException(statusCode, errorMessage);
+        }
     }
 
     private HttpHeaders createHeadersWithToken(String accessToken) {
