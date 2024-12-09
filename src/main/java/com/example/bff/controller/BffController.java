@@ -25,25 +25,31 @@ public class BffController {
     public ResponseEntity<LoginResponse> loginReq(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(bffService.login(loginRequest));
     }
+
     //--------------------------//
     //CRUD operations for Asset //
     //--------------------------//
     @GetMapping("/assets")
-    public List<Asset> getAllAssets(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<AssetResPagination> getAllAssets(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNo,
+                                                           @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+                                                           @RequestHeader("Authorization") String accessToken) {
         String accessTokenTrunked = accessToken.substring(7);
-        return bffService.getAllAssets(accessTokenTrunked);
+        AssetResPagination assets = bffService.getAllAssets(accessTokenTrunked, pageNo, pageSize);
+        return ResponseEntity.ok(assets);
     }
 
     @PostMapping("/assets")
-    public Asset createAsset(@RequestBody Asset asset, @RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<Asset> createAsset(@RequestBody Asset asset, @RequestHeader("Authorization") String accessToken) {
         String accessTokenTrunked = accessToken.substring(7);
-        return bffService.createAsset(accessTokenTrunked, asset);
+        Asset createdAsset = bffService.createAsset(accessTokenTrunked, asset);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdAsset);
     }
 
     @PatchMapping("/assets/{id}")
-    public Asset updateAsset(@PathVariable Long id, @RequestBody Map<String, Object> updates, @RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<Asset> updateAsset(@PathVariable Long id, @RequestBody Map<String, Object> updates, @RequestHeader("Authorization") String accessToken) {
         String accessTokenTrunked = accessToken.substring(7);
-        return bffService.updateAsset(accessTokenTrunked, id, updates);
+        Asset updatedAsset = bffService.updateAsset(accessTokenTrunked, id, updates);
+        return ResponseEntity.ok(updatedAsset);
     }
 
     @DeleteMapping("/assets/{id}")
