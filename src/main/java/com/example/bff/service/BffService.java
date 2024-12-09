@@ -7,6 +7,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -29,24 +30,32 @@ public class BffService {
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<LoginRequest> entity = new HttpEntity<>(loginRequest, headers);
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<LoginRequest> entity = new HttpEntity<>(loginRequest, headers);
 
-        ResponseEntity<LoginResponse> exchange = restTemplate.exchange(loginApiUrl, HttpMethod.POST, entity, LoginResponse.class);
-        return exchange.getBody();
+            ResponseEntity<LoginResponse> exchange = restTemplate.exchange(loginApiUrl, HttpMethod.POST, entity, LoginResponse.class);
+            return exchange.getBody();
+        } catch (HttpClientErrorException e) {
+            String errorMessage = e.getResponseBodyAsString();
+            HttpStatusCode statusCode = e.getStatusCode();
+            throw new CustomClientException(statusCode, errorMessage);
+        } catch (ResourceAccessException e) {
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Login service is currently unavailable. Please try again later.");
+        }
     }
 
-    public List<Asset> getAllAssets(String accessToken) {
+    public AssetResPagination getAllAssets(String accessToken, int pageNo, int pageSize) {
         try {
             HttpHeaders headers = createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-            ResponseEntity<List<Asset>> response = restTemplate.exchange(
-                    assetApiUrl,
+            String url = String.format("%s?page=%d&pageSize=%d", assetApiUrl, pageNo, pageSize);
+            ResponseEntity<AssetResPagination> response = restTemplate.exchange(
+                    url,
                     HttpMethod.GET,
                     entity,
-                    new ParameterizedTypeReference<List<Asset>>() {}
+                    AssetResPagination.class
             );
             return response.getBody();
         } catch (HttpClientErrorException e) {
@@ -54,6 +63,8 @@ public class BffService {
             HttpStatusCode statusCode = e.getStatusCode();
 
             throw new CustomClientException(statusCode, errorMessage);
+        } catch (ResourceAccessException e) {
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Asset service is currently unavailable. Please try again later.");
         }
     }
 
@@ -75,6 +86,8 @@ public class BffService {
             HttpStatusCode statusCode = e.getStatusCode();
 
             throw new CustomClientException(statusCode, errorMessage);
+        } catch (ResourceAccessException e) {
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Asset service is currently unavailable. Please try again later.");
         }
     }
 
@@ -96,6 +109,8 @@ public class BffService {
             HttpStatusCode statusCode = e.getStatusCode();
 
             throw new CustomClientException(statusCode, errorMessage);
+        } catch (ResourceAccessException e) {
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Asset service is currently unavailable. Please try again later.");
         }
     }
 
@@ -117,6 +132,8 @@ public class BffService {
             HttpStatusCode statusCode = e.getStatusCode();
 
             throw new CustomClientException(statusCode, errorMessage);
+        } catch (ResourceAccessException e) {
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Asset service is currently unavailable. Please try again later.");
         }
     }
 
@@ -145,6 +162,8 @@ public class BffService {
             HttpStatusCode statusCode = e.getStatusCode();
 
             throw new CustomClientException(statusCode, errorMessage);
+        } catch (ResourceAccessException e) {
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "User service is currently unavailable. Please try again later.");
         }
     }
 
@@ -165,6 +184,8 @@ public class BffService {
             HttpStatusCode statusCode = e.getStatusCode();
 
             throw new CustomClientException(statusCode, errorMessage);
+        } catch (ResourceAccessException e) {
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "User service is currently unavailable. Please try again later.");
         }
     }
 
@@ -186,6 +207,8 @@ public class BffService {
             HttpStatusCode statusCode = e.getStatusCode();
 
             throw new CustomClientException(statusCode, errorMessage);
+        } catch (ResourceAccessException e) {
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "User service is currently unavailable. Please try again later.");
         }
     }
 
@@ -207,6 +230,8 @@ public class BffService {
             HttpStatusCode statusCode = e.getStatusCode();
 
             throw new CustomClientException(statusCode, errorMessage);
+        } catch (ResourceAccessException e) {
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "User service is currently unavailable. Please try again later.");
         }
     }
 }
