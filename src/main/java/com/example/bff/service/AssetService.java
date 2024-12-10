@@ -3,6 +3,7 @@ package com.example.bff.service;
 import com.example.bff.exception.CustomClientException;
 import com.example.bff.resourcemodel.Asset;
 import com.example.bff.resourcemodel.AssetResPagination;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -14,10 +15,11 @@ import java.util.Map;
 
 @Service
 public class AssetService {
+    @Getter
     @Value("${api.asset.path}")
     private String assetApiUrl;
 
-    private static final String ASSET_MICROSERVICE_ERROR = "Asset service is currently unavailable. Please try again later.";
+    public static final String ASSET_MICROSERVICE_ERROR = "Asset service is currently unavailable. Please try again later.";
 
     private final RestTemplate restTemplate;
 
@@ -115,7 +117,7 @@ public class AssetService {
         }
     }
 
-    private HttpHeaders createHeadersWithToken(String accessToken) {
+    protected HttpHeaders createHeadersWithToken(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(accessToken);
