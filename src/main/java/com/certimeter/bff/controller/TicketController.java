@@ -44,20 +44,19 @@ public class TicketController {
         ticket.setUserId(userId);
         String role = jwtService.getClaimFromAccessToken(accessTokenTrunked, "role", String.class);
         ResponseEntity<Ticket> response = null;
-        try {
             if(UserRoleEnum.USER.name().equals(role)) {
                 ticket.setStatus(Status.OPEN);
-                ticket.setProgressStage(ProgressStage.NEW);
+
                 AssetResPagination assets = assetService.getAllAssets(accessTokenTrunked, 0, 100);
                 if(assets.getData().stream().noneMatch(asset -> asset.getId().equals(ticket.getAssetId()))) {
                     throw new CustomClientException(HttpStatus.FORBIDDEN,"Asset is not assigned to the user.");
                 }
                 response = ResponseEntity.ok(ticketService.createTicket(accessTokenTrunked, ticket));
             }
+            if(response == null) {
+                throw new CustomClientException(HttpStatus.FORBIDDEN, role +" is not authorized to create a ticket.");
+            }
             return response;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @PatchMapping("/{id}")

@@ -26,5 +26,4 @@ public class Ticket {
     private Timestamp closedAt;
     private String resolutionDetails;
     private Timestamp lastUpdatedAt;
-    private ProgressStage progressStage = ProgressStage.NEW;
 }
