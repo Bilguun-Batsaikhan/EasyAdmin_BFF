@@ -8,10 +8,10 @@
 		<version>3.4.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>bff</artifactId>
+	<groupId>com.certimeter</groupId>
+	<artifactId>easyadmin-bff</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>bff</name>
+	<name>easyadmin-bff</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
@@ -51,6 +51,12 @@
 			<groupId>org.apache.httpcomponents.client5</groupId>
 			<artifactId>httpclient5</artifactId>
 			<version>5.4.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>0.12.6</version>
 		</dependency>
 	</dependencies>
 
