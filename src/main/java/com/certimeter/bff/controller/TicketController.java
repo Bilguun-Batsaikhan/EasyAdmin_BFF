@@ -1,6 +1,5 @@
 package com.certimeter.bff.controller;
 
-import com.certimeter.bff.enumeration.ProgressStage;
 import com.certimeter.bff.enumeration.Status;
 import com.certimeter.bff.enumeration.UserRoleEnum;
 import com.certimeter.bff.exception.CustomClientException;
