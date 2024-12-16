@@ -9,19 +9,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class UserService {
+
     @Value("${api.user.path}")
     private String userApiUrl;
 
     private static final String USER_MICROSERVICE_ERROR = "User service is currently unavailable. Please try again later.";
 
     private final RestTemplate restTemplate;
-
+    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
     public UserService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
@@ -32,6 +35,7 @@ public class UserService {
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
             String url = String.format("%s?page=%d&pageSize=%d", userApiUrl, pageNo, pageSize);
+            LOG.info("Request URL: {}", url);
             ResponseEntity<UserResPagination> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
