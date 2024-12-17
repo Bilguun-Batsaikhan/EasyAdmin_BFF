@@ -20,12 +20,14 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<UserResPagination> getAllUsers(@RequestParam Optional<Integer> age,
+    public ResponseEntity<UserResPagination> getAllUsers(
                                                          @RequestParam(value = "page", defaultValue = "0", required = false) int pageNo,
                                                          @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+                                                         @RequestParam Optional <String> username,
+                                                         @RequestParam Optional <String> matchMode,
                                                          @RequestHeader("Authorization") String accessToken) {
         String accessTokenTrunked = accessToken.substring(7);
-        return new ResponseEntity<>(userService.getAllUsers(accessTokenTrunked, age, pageNo, pageSize), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getAllUsers(accessTokenTrunked, pageNo, pageSize, username, matchMode), HttpStatus.OK);
     }
 
     @PostMapping

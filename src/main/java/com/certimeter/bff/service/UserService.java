@@ -29,12 +29,15 @@ public class UserService {
         this.restTemplate = restTemplate;
     }
 
-    public UserResPagination getAllUsers(String accessToken, Optional<Integer> age, int pageNo, int pageSize) {
+    public UserResPagination getAllUsers(String accessToken, int pageNo, int pageSize, Optional<String> username, Optional<String> matchMode) {
         try {
             HttpHeaders headers = createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            String url = String.format("%s?page=%d&pageSize=%d", userApiUrl, pageNo, pageSize);
+            StringBuilder urlBuilder = new StringBuilder(String.format("%s?page=%d&pageSize=%d", userApiUrl, pageNo, pageSize));
+            username.ifPresent(u -> urlBuilder.append("&username=").append(u));
+            matchMode.ifPresent(m -> urlBuilder.append("&matchMode=").append(m));
+            String url = urlBuilder.toString();
             LOG.info("Request URL: {}", url);
             ResponseEntity<UserResPagination> response = restTemplate.exchange(
                     url,
