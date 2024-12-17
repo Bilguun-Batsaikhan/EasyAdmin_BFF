@@ -11,7 +11,6 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,16 +28,14 @@ public class UserService {
         this.restTemplate = restTemplate;
     }
 
-    public UserResPagination getAllUsers(String accessToken, int pageNo, int pageSize, Optional<String> username, Optional<String> matchMode) {
+    public UserResPagination getAllUsers(String accessToken, int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> firstname, Optional<String> firstnameMatchMode, Optional<String> surname, Optional<String> surnameMatchMode, Optional<String> phoneNumber, Optional<String> phoneNumberMatchMode, Optional<String> email, Optional<String> emailMatchMode, Optional<String> role, Optional<String> roleMatchMode) {
         try {
             HttpHeaders headers = createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            StringBuilder urlBuilder = new StringBuilder(String.format("%s?page=%d&pageSize=%d", userApiUrl, pageNo, pageSize));
-            username.ifPresent(u -> urlBuilder.append("&username=").append(u));
-            matchMode.ifPresent(m -> urlBuilder.append("&matchMode=").append(m));
-            String url = urlBuilder.toString();
+            String url = buildUrlWithParams(pageNo, pageSize, username, usernameMatchMode, firstname, firstnameMatchMode, surname, surnameMatchMode, phoneNumber, phoneNumberMatchMode, email, emailMatchMode, role, roleMatchMode);
             LOG.info("Request URL: {}", url);
+
             ResponseEntity<UserResPagination> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
@@ -49,11 +46,31 @@ public class UserService {
         } catch (HttpClientErrorException e) {
             String errorMessage = e.getResponseBodyAsString();
             HttpStatusCode statusCode = e.getStatusCode();
-
             throw new CustomClientException(statusCode, errorMessage);
         } catch (ResourceAccessException e) {
             throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, USER_MICROSERVICE_ERROR);
         }
+    }
+
+    private String buildUrlWithParams(int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> firstname, Optional<String> firstnameMatchMode, Optional<String> surname, Optional<String> surnameMatchMode, Optional<String> phoneNumber, Optional<String> phoneNumberMatchMode, Optional<String> email, Optional<String> emailMatchMode, Optional<String> role, Optional<String> roleMatchMode) {
+        StringBuilder urlBuilder = new StringBuilder(String.format("%s?page=%d&pageSize=%d", userApiUrl, pageNo, pageSize));
+        appendOptionalParam(urlBuilder, "username", username);
+        appendOptionalParam(urlBuilder, "usernameMatchMode", usernameMatchMode);
+        appendOptionalParam(urlBuilder, "firstname", firstname);
+        appendOptionalParam(urlBuilder, "firstnameMatchMode", firstnameMatchMode);
+        appendOptionalParam(urlBuilder, "surname", surname);
+        appendOptionalParam(urlBuilder, "surnameMatchMode", surnameMatchMode);
+        appendOptionalParam(urlBuilder, "phoneNumber", phoneNumber);
+        appendOptionalParam(urlBuilder, "phoneNumberMatchMode", phoneNumberMatchMode);
+        appendOptionalParam(urlBuilder, "email", email);
+        appendOptionalParam(urlBuilder, "emailMatchMode", emailMatchMode);
+        appendOptionalParam(urlBuilder, "role", role);
+        appendOptionalParam(urlBuilder, "roleMatchMode", roleMatchMode);
+        return urlBuilder.toString();
+    }
+
+    private void appendOptionalParam(StringBuilder urlBuilder, String paramName, Optional<String> paramValue) {
+        paramValue.ifPresent(value -> urlBuilder.append("&").append(paramName).append("=").append(value));
     }
 
     public String addUser(String accessToken, User user) {
