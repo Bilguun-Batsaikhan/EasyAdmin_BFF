@@ -20,12 +20,26 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<UserResPagination> getAllUsers(@RequestParam Optional<Integer> age,
+    public ResponseEntity<UserResPagination> getAllUsers(
                                                          @RequestParam(value = "page", defaultValue = "0", required = false) int pageNo,
                                                          @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+                                                         @RequestParam Optional<String> username,
+                                                         @RequestParam Optional<String> usernameMatchMode,
+                                                         @RequestParam Optional<String> firstname,
+                                                         @RequestParam Optional<String> firstnameMatchMode,
+                                                         @RequestParam Optional<String> surname,
+                                                         @RequestParam Optional<String> surnameMatchMode,
+                                                         @RequestParam Optional<String> phoneNumber,
+                                                         @RequestParam Optional<String> phoneNumberMatchMode,
+                                                         @RequestParam Optional<String> email,
+                                                         @RequestParam Optional<String> emailMatchMode,
+                                                         @RequestParam Optional<String> role,
+                                                         @RequestParam Optional<String> roleMatchMode,
+                                                         @RequestParam Optional<String> birthdate,
+                                                            @RequestParam Optional<String> birthdateMatchMode,
                                                          @RequestHeader("Authorization") String accessToken) {
         String accessTokenTrunked = accessToken.substring(7);
-        return new ResponseEntity<>(userService.getAllUsers(accessTokenTrunked, age, pageNo, pageSize), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getAllUsers(accessTokenTrunked, pageNo, pageSize, username, usernameMatchMode, firstname, firstnameMatchMode, surname, surnameMatchMode, phoneNumber, phoneNumberMatchMode, email, emailMatchMode, role, roleMatchMode, birthdate, birthdateMatchMode), HttpStatus.OK);
     }
 
     @PostMapping
