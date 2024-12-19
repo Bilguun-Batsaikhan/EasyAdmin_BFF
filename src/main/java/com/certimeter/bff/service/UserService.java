@@ -28,12 +28,12 @@ public class UserService {
         this.restTemplate = restTemplate;
     }
 
-    public UserResPagination getAllUsers(String accessToken, int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> firstname, Optional<String> firstnameMatchMode, Optional<String> surname, Optional<String> surnameMatchMode, Optional<String> phoneNumber, Optional<String> phoneNumberMatchMode, Optional<String> email, Optional<String> emailMatchMode, Optional<String> role, Optional<String> roleMatchMode) {
+    public UserResPagination getAllUsers(String accessToken, int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> firstname, Optional<String> firstnameMatchMode, Optional<String> surname, Optional<String> surnameMatchMode, Optional<String> phoneNumber, Optional<String> phoneNumberMatchMode, Optional<String> email, Optional<String> emailMatchMode, Optional<String> role, Optional<String> roleMatchMode, Optional<String> birthdate, Optional<String> birthdateMatchMode) {
         try {
             HttpHeaders headers = createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            String url = buildUrlWithParams(pageNo, pageSize, username, usernameMatchMode, firstname, firstnameMatchMode, surname, surnameMatchMode, phoneNumber, phoneNumberMatchMode, email, emailMatchMode, role, roleMatchMode);
+            String url = buildUrlWithParams(pageNo, pageSize, username, usernameMatchMode, firstname, firstnameMatchMode, surname, surnameMatchMode, phoneNumber, phoneNumberMatchMode, email, emailMatchMode, role, roleMatchMode, birthdate, birthdateMatchMode);
             LOG.info("Request URL: {}", url);
 
             ResponseEntity<UserResPagination> response = restTemplate.exchange(
@@ -52,7 +52,7 @@ public class UserService {
         }
     }
 
-    private String buildUrlWithParams(int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> firstname, Optional<String> firstnameMatchMode, Optional<String> surname, Optional<String> surnameMatchMode, Optional<String> phoneNumber, Optional<String> phoneNumberMatchMode, Optional<String> email, Optional<String> emailMatchMode, Optional<String> role, Optional<String> roleMatchMode) {
+    private String buildUrlWithParams(int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> firstname, Optional<String> firstnameMatchMode, Optional<String> surname, Optional<String> surnameMatchMode, Optional<String> phoneNumber, Optional<String> phoneNumberMatchMode, Optional<String> email, Optional<String> emailMatchMode, Optional<String> role, Optional<String> roleMatchMode, Optional<String> birthdate, Optional<String> birthdateMatchMode) {
         StringBuilder urlBuilder = new StringBuilder(String.format("%s?page=%d&pageSize=%d", userApiUrl, pageNo, pageSize));
         appendOptionalParam(urlBuilder, "username", username);
         appendOptionalParam(urlBuilder, "usernameMatchMode", usernameMatchMode);
@@ -66,6 +66,8 @@ public class UserService {
         appendOptionalParam(urlBuilder, "emailMatchMode", emailMatchMode);
         appendOptionalParam(urlBuilder, "role", role);
         appendOptionalParam(urlBuilder, "roleMatchMode", roleMatchMode);
+        appendOptionalParam(urlBuilder, "birthdate", birthdate);
+        appendOptionalParam(urlBuilder, "birthdateMatchMode", birthdateMatchMode);
         return urlBuilder.toString();
     }
 

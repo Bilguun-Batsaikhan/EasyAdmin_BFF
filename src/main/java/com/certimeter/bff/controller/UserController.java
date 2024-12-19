@@ -35,9 +35,11 @@ public class UserController {
                                                          @RequestParam Optional<String> emailMatchMode,
                                                          @RequestParam Optional<String> role,
                                                          @RequestParam Optional<String> roleMatchMode,
+                                                         @RequestParam Optional<String> birthdate,
+                                                            @RequestParam Optional<String> birthdateMatchMode,
                                                          @RequestHeader("Authorization") String accessToken) {
         String accessTokenTrunked = accessToken.substring(7);
-        return new ResponseEntity<>(userService.getAllUsers(accessTokenTrunked, pageNo, pageSize, username, usernameMatchMode, firstname, firstnameMatchMode, surname, surnameMatchMode, phoneNumber, phoneNumberMatchMode, email, emailMatchMode, role, roleMatchMode), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getAllUsers(accessTokenTrunked, pageNo, pageSize, username, usernameMatchMode, firstname, firstnameMatchMode, surname, surnameMatchMode, phoneNumber, phoneNumberMatchMode, email, emailMatchMode, role, roleMatchMode, birthdate, birthdateMatchMode), HttpStatus.OK);
     }
 
     @PostMapping
