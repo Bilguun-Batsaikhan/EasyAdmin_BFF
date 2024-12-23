@@ -17,6 +17,8 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+    private final BffService bffService;
+
     @Value("${api.user.path}")
     private String userApiUrl;
 
@@ -24,13 +26,15 @@ public class UserService {
 
     private final RestTemplate restTemplate;
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
-    public UserService(RestTemplate restTemplate) {
+
+    public UserService(BffService bffService, RestTemplate restTemplate) {
+        this.bffService = bffService;
         this.restTemplate = restTemplate;
     }
 
     public UserResPagination getAllUsers(String accessToken, int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> firstname, Optional<String> firstnameMatchMode, Optional<String> surname, Optional<String> surnameMatchMode, Optional<String> phoneNumber, Optional<String> phoneNumberMatchMode, Optional<String> email, Optional<String> emailMatchMode, Optional<String> role, Optional<String> roleMatchMode, Optional<String> birthdate, Optional<String> birthdateMatchMode) {
         try {
-            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
             String url = buildUrlWithParams(pageNo, pageSize, username, usernameMatchMode, firstname, firstnameMatchMode, surname, surnameMatchMode, phoneNumber, phoneNumberMatchMode, email, emailMatchMode, role, roleMatchMode, birthdate, birthdateMatchMode);
@@ -54,20 +58,20 @@ public class UserService {
 
     private String buildUrlWithParams(int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> firstname, Optional<String> firstnameMatchMode, Optional<String> surname, Optional<String> surnameMatchMode, Optional<String> phoneNumber, Optional<String> phoneNumberMatchMode, Optional<String> email, Optional<String> emailMatchMode, Optional<String> role, Optional<String> roleMatchMode, Optional<String> birthdate, Optional<String> birthdateMatchMode) {
         StringBuilder urlBuilder = new StringBuilder(String.format("%s?page=%d&pageSize=%d", userApiUrl, pageNo, pageSize));
-        appendOptionalParam(urlBuilder, "username", username);
-        appendOptionalParam(urlBuilder, "usernameMatchMode", usernameMatchMode);
-        appendOptionalParam(urlBuilder, "firstname", firstname);
-        appendOptionalParam(urlBuilder, "firstnameMatchMode", firstnameMatchMode);
-        appendOptionalParam(urlBuilder, "surname", surname);
-        appendOptionalParam(urlBuilder, "surnameMatchMode", surnameMatchMode);
-        appendOptionalParam(urlBuilder, "phoneNumber", phoneNumber);
-        appendOptionalParam(urlBuilder, "phoneNumberMatchMode", phoneNumberMatchMode);
-        appendOptionalParam(urlBuilder, "email", email);
-        appendOptionalParam(urlBuilder, "emailMatchMode", emailMatchMode);
-        appendOptionalParam(urlBuilder, "role", role);
-        appendOptionalParam(urlBuilder, "roleMatchMode", roleMatchMode);
-        appendOptionalParam(urlBuilder, "birthdate", birthdate);
-        appendOptionalParam(urlBuilder, "birthdateMatchMode", birthdateMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "username", username);
+        bffService.appendOptionalParam(urlBuilder, "usernameMatchMode", usernameMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "firstname", firstname);
+        bffService.appendOptionalParam(urlBuilder, "firstnameMatchMode", firstnameMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "surname", surname);
+        bffService.appendOptionalParam(urlBuilder, "surnameMatchMode", surnameMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "phoneNumber", phoneNumber);
+        bffService.appendOptionalParam(urlBuilder, "phoneNumberMatchMode", phoneNumberMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "email", email);
+        bffService.appendOptionalParam(urlBuilder, "emailMatchMode", emailMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "role", role);
+        bffService.appendOptionalParam(urlBuilder, "roleMatchMode", roleMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "birthdate", birthdate);
+        bffService.appendOptionalParam(urlBuilder, "birthdateMatchMode", birthdateMatchMode);
         return urlBuilder.toString();
     }
 
@@ -77,7 +81,7 @@ public class UserService {
 
     public String addUser(String accessToken, User user) {
         try {
-            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<User> entity = new HttpEntity<>(user, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
@@ -99,7 +103,7 @@ public class UserService {
 
     public String updateUser(String accessToken, Long id, Map<String, Object> updates) {
         try {
-            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(updates, headers);
 
             String updateUrl = String.format("%s/%d", userApiUrl, id);
@@ -122,7 +126,7 @@ public class UserService {
 
     public String removeUser(String accessToken, Long id) {
         try {
-            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
             String deleteUrl = String.format("%s/%d", userApiUrl, id);
@@ -143,10 +147,5 @@ public class UserService {
         }
     }
 
-    private HttpHeaders createHeadersWithToken(String accessToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(accessToken);
-        return headers;
-    }
+
 }

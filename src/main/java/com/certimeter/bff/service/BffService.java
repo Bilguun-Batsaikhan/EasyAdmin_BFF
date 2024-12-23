@@ -12,6 +12,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Optional;
+
 @Service
 public class BffService {
     @Value("${api.login.path}")
@@ -56,5 +58,16 @@ public class BffService {
         } catch (ResourceAccessException e) {
             throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Refresh service is currently unavailable. Please try again later.");
         }
+    }
+
+    public void appendOptionalParam(StringBuilder urlBuilder, String paramName, Optional<String> paramValue) {
+        paramValue.ifPresent(value -> urlBuilder.append("&").append(paramName).append("=").append(value));
+    }
+
+    public HttpHeaders createHeadersWithToken(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(accessToken);
+        return headers;
     }
 }

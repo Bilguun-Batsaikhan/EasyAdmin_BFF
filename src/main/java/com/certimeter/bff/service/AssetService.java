@@ -4,6 +4,8 @@ import com.certimeter.bff.exception.CustomClientException;
 import com.certimeter.bff.resourcemodel.Asset;
 import com.certimeter.bff.pagination.AssetResPagination;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -12,9 +14,13 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AssetService {
+
+    private final BffService bffService;
+
     @Getter
     @Value("${api.asset.path}")
     private String assetApiUrl;
@@ -22,16 +28,19 @@ public class AssetService {
     public static final String ASSET_MICROSERVICE_ERROR = "Asset service is currently unavailable. Please try again later.";
 
     private final RestTemplate restTemplate;
-
-    public AssetService(RestTemplate restTemplate) {
+    private static final Logger LOG = LoggerFactory.getLogger(AssetService.class);
+    public AssetService(BffService bffService, RestTemplate restTemplate) {
+        this.bffService = bffService;
         this.restTemplate = restTemplate;
     }
 
-    public AssetResPagination getAllAssets(String accessToken, int pageNo, int pageSize) {
+    public AssetResPagination getAllAssets(String accessToken, int pageNo, int pageSize, Optional<String> userID, Optional<String> userIDMatchMode, Optional<String> modelName, Optional<String> modelNameMatchMode, Optional<String> type, Optional<String> typeMatchMode, Optional<String> status, Optional<String> statusMatchMode, Optional<String> cost, Optional<String> costMatchMode) {
         try {
-            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-            String url = String.format("%s?page=%d&pageSize=%d", assetApiUrl, pageNo, pageSize);
+            String url = buildUrlWithParams(pageNo, pageSize, userID, userIDMatchMode, modelName, modelNameMatchMode, type, typeMatchMode, status, statusMatchMode, cost, costMatchMode);
+            LOG.info("Request URL: {}", url);
+
             ResponseEntity<AssetResPagination> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
@@ -51,7 +60,7 @@ public class AssetService {
 
     public Asset createAsset(String accessToken, Asset asset) {
         try {
-            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Asset> entity = new HttpEntity<>(asset, headers);
 
             ResponseEntity<Asset> response = restTemplate.exchange(
@@ -73,7 +82,7 @@ public class AssetService {
 
     public Asset updateAsset(String accessToken, Long id, Map<String, Object> updates) {
         try {
-            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(updates, headers);
 
             String updateUrl = String.format("%s/%d", assetApiUrl, id);
@@ -96,7 +105,7 @@ public class AssetService {
 
     public Asset removeAsset(String accessToken, Long id) {
         try {
-            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
             String deleteUrl = String.format("%s/%d", assetApiUrl, id);
@@ -117,10 +126,22 @@ public class AssetService {
         }
     }
 
-    protected HttpHeaders createHeadersWithToken(String accessToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(accessToken);
-        return headers;
+    private String buildUrlWithParams(int pageNo, int pageSize, Optional<String> userID, Optional<String> userIDMatchMode, Optional<String> modelName, Optional<String> modelNameMatchMode, Optional<String> type, Optional<String> typeMatchMode, Optional<String> status, Optional<String> statusMatchMode, Optional<String> cost, Optional<String> costMatchMode) {
+        StringBuilder urlBuilder = new StringBuilder(String.format("%s?page=%d&pageSize=%d", assetApiUrl, pageNo, pageSize));
+        LOG.info("Initial URL: {}", urlBuilder.toString());
+
+        bffService.appendOptionalParam(urlBuilder, "userID", userID);
+        bffService.appendOptionalParam(urlBuilder, "userIDMatchMode", userIDMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "modelName", modelName);
+        bffService.appendOptionalParam(urlBuilder, "modelNameMatchMode", modelNameMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "type", type);
+        bffService.appendOptionalParam(urlBuilder, "typeMatchMode", typeMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "status", status);
+        bffService.appendOptionalParam(urlBuilder, "statusMatchMode", statusMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "cost", cost);
+        bffService.appendOptionalParam(urlBuilder, "costMatchMode", costMatchMode);
+
+        LOG.info("Final URL: {}", urlBuilder.toString());
+        return urlBuilder.toString();
     }
 }
