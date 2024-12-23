@@ -4,6 +4,8 @@ import com.certimeter.bff.exception.CustomClientException;
 import com.certimeter.bff.resourcemodel.Asset;
 import com.certimeter.bff.pagination.AssetResPagination;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ public class AssetService {
     public static final String ASSET_MICROSERVICE_ERROR = "Asset service is currently unavailable. Please try again later.";
 
     private final RestTemplate restTemplate;
-
+    private static final Logger LOG = LoggerFactory.getLogger(AssetService.class);
     public AssetService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
@@ -32,6 +34,7 @@ public class AssetService {
             HttpHeaders headers = createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
             String url = String.format("%s?page=%d&pageSize=%d", assetApiUrl, pageNo, pageSize);
+            LOG.info("Request URL: {}", url);
             ResponseEntity<AssetResPagination> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
