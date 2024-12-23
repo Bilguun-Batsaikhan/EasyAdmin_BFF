@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/bff/assets")
@@ -21,9 +22,19 @@ public class AssetController {
     @GetMapping
     public ResponseEntity<AssetResPagination> getAllAssets(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNo,
                                                            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+                                                           @RequestParam Optional<String> userID,
+                                                           @RequestParam Optional<String> userIDMatchMode,
+                                                           @RequestParam Optional<String> modelName,
+                                                           @RequestParam Optional<String> modelNameMatchMode,
+                                                           @RequestParam Optional<String> type,
+                                                           @RequestParam Optional<String> typeMatchMode,
+                                                           @RequestParam Optional<String> status,
+                                                           @RequestParam Optional<String> statusMatchMode,
+                                                           @RequestParam Optional<String> cost,
+                                                           @RequestParam Optional<String> costMatchMode,
                                                            @RequestHeader("Authorization") String accessToken) {
         String accessTokenTrunked = accessToken.substring(7);
-        AssetResPagination assets = assetService.getAllAssets(accessTokenTrunked, pageNo, pageSize);
+        AssetResPagination assets = assetService.getAllAssets(accessTokenTrunked, pageNo, pageSize, userID, userIDMatchMode, modelName, modelNameMatchMode, type, typeMatchMode, status, statusMatchMode, cost, costMatchMode);
         return ResponseEntity.ok(assets);
     }
 

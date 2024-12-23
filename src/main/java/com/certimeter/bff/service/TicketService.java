@@ -18,15 +18,15 @@ public class TicketService {
     private String ticketApiUrl;
 
     private final RestTemplate restTemplate;
-    private final AssetService assetService;
-    public TicketService(RestTemplate restTemplate, AssetService assetService) {
+    private final BffService bffService;
+    public TicketService(RestTemplate restTemplate, BffService bffService) {
         this.restTemplate = restTemplate;
-        this.assetService = assetService;
+        this.bffService = bffService;
     }
 
     public TicketResPagination getAllTickets(String accessToken, int pageNo, int pageSize) {
         try {
-            HttpHeaders headers = assetService.createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
             String url = String.format("%s?page=%d&pageSize=%d", ticketApiUrl, pageNo, pageSize);
             ResponseEntity<TicketResPagination> response = restTemplate.exchange(
@@ -48,7 +48,7 @@ public class TicketService {
 
     public Ticket createTicket(String accessToken, Ticket ticket) {
         try {
-            HttpHeaders headers = assetService.createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Ticket> entity = new HttpEntity<>(ticket, headers);
             ResponseEntity<Ticket> response = restTemplate.exchange(
                     ticketApiUrl,
@@ -69,7 +69,7 @@ public class TicketService {
 
     public Ticket updateTicket(String accessToken, Long id, Map<String, Object> updates) {
         try {
-            HttpHeaders headers = assetService.createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(updates, headers);
             String url = String.format("%s/%d", ticketApiUrl, id);
             ResponseEntity<Ticket> response = restTemplate.exchange(

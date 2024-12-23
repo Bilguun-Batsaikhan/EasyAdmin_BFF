@@ -46,7 +46,7 @@ public class TicketController {
             if(UserRoleEnum.USER.name().equals(role)) {
                 ticket.setStatus(Status.OPEN);
 
-                AssetResPagination assets = assetService.getAllAssets(accessTokenTrunked, 0, 100);
+                AssetResPagination assets = assetService.getAllAssets(accessTokenTrunked, 0, 100, null, null, null, null, null, null, null, null, null, null);
                 if(assets.getData().stream().noneMatch(asset -> asset.getId().equals(ticket.getAssetId()))) {
                     throw new CustomClientException(HttpStatus.FORBIDDEN,"Asset is not assigned to the user.");
                 }

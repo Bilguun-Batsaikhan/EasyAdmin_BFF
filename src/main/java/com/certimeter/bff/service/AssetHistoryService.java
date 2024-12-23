@@ -13,18 +13,18 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class AssetHistoryService {
     private final RestTemplate restTemplate;
-    private final AssetService assetService;
+    private final BffService bffService;
     @Value("${api.asset.path}")
     private String assetApiUrl;
 
-    public AssetHistoryService(RestTemplate restTemplate, AssetService assetService) {
+    public AssetHistoryService(RestTemplate restTemplate, BffService bffService) {
         this.restTemplate = restTemplate;
-        this.assetService = assetService;
+        this.bffService = bffService;
     }
 
     public AssetHistoryResPagination getAllAssetHistories(String accessToken, int pageNo, int pageSize) {
         try {
-            HttpHeaders headers = assetService.createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
             String url = String.format("%s?page=%d&pageSize=%d", assetApiUrl + "/history", pageNo, pageSize);
             ResponseEntity<AssetHistoryResPagination> response = restTemplate.exchange(
@@ -40,13 +40,13 @@ public class AssetHistoryService {
 
             throw new CustomClientException(statusCode, errorMessage);
         } catch (ResourceAccessException e) {
-            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, assetService.getAssetApiUrl());
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, assetApiUrl);
         }
     }
 
     public AssetHistory getAssetHistory(String accessToken, Long id) {
         try {
-            HttpHeaders headers = assetService.createHeadersWithToken(accessToken);
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
             String url = String.format("%s/%d", assetApiUrl + "/history", id);
             ResponseEntity<AssetHistory> response = restTemplate.exchange(
@@ -62,7 +62,7 @@ public class AssetHistoryService {
 
             throw new CustomClientException(statusCode, errorMessage);
         } catch (ResourceAccessException e) {
-            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, assetService.getAssetApiUrl());
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, assetApiUrl);
         }
     }
 }
