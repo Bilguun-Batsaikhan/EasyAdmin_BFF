@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 @Data
 public class AssetHistoryResPagination {
-    List<AssetHistory> assetHistoryList;
+    List<AssetHistory> data;
     private int pageNo;
     private int pageSize;
     private long totalElements;
