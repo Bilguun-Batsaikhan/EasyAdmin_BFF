@@ -146,6 +146,4 @@ public class UserService {
             throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, USER_MICROSERVICE_ERROR);
         }
     }
-
-
 }

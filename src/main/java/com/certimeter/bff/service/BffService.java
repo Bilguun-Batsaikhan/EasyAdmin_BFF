@@ -6,19 +6,23 @@ import com.certimeter.bff.dto.LoginResponse;
 import com.certimeter.bff.dto.RefreshRequest;
 import com.certimeter.bff.dto.RefreshResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class BffService {
     @Value("${api.login.path}")
     private String loginApiUrl;
-
+    @Value("${api.user.path}")
+    private String userApiUrl;
     private final RestTemplate restTemplate;
 
     public BffService(RestTemplate restTemplate) {
@@ -46,7 +50,7 @@ public class BffService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(accessToken);
+            headers.setBearerAuth(accessToken); //TODO: replace with createHeadersWithToken
             HttpEntity<RefreshRequest> entity = new HttpEntity<>(refreshRequest, headers);
 
             ResponseEntity<RefreshResponse> exchange = restTemplate.exchange(loginApiUrl + "/refresh", HttpMethod.POST, entity, RefreshResponse.class);
@@ -57,6 +61,21 @@ public class BffService {
             throw new CustomClientException(statusCode, errorMessage);
         } catch (ResourceAccessException e) {
             throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Refresh service is currently unavailable. Please try again later.");
+        }
+    }
+
+    public Map<Long, String> getUsernamesGivenIds(String accessToken, List<Long> ids) {
+        try {
+            HttpHeaders headers = createHeadersWithToken(accessToken);
+            HttpEntity<List<Long>> entity = new HttpEntity<>(ids, headers);
+
+            ResponseEntity<Map<Long, String>> exchange = restTemplate.exchange(userApiUrl + "/usernames", HttpMethod.POST, entity, new ParameterizedTypeReference<Map<Long, String>>() {
+            });
+            return exchange.getBody();
+        } catch (HttpClientErrorException e) {
+            String errorMessage = e.getResponseBodyAsString();
+            HttpStatusCode statusCode = e.getStatusCode();
+            throw new CustomClientException(statusCode, errorMessage);
         }
     }
 
