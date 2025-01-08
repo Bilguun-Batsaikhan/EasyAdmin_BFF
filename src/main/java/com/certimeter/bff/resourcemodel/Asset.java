@@ -18,4 +18,5 @@ public class Asset {
     private AssetStatus status;
     private BigDecimal cost;
     private Long userID;
+    private User user;
 }

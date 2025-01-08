@@ -34,11 +34,11 @@ public class AssetService {
         this.restTemplate = restTemplate;
     }
 
-    public AssetResPagination getAllAssets(String accessToken, int pageNo, int pageSize, Optional<String> userID, Optional<String> userIDMatchMode, Optional<String> modelName, Optional<String> modelNameMatchMode, Optional<String> type, Optional<String> typeMatchMode, Optional<String> status, Optional<String> statusMatchMode, Optional<String> cost, Optional<String> costMatchMode) {
+    public AssetResPagination getAllAssets(String accessToken, int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> modelName, Optional<String> modelNameMatchMode, Optional<String> type, Optional<String> typeMatchMode, Optional<String> status, Optional<String> statusMatchMode, Optional<String> cost, Optional<String> costMatchMode, Optional<String> action, Optional<String> actionMatchMode) {
         try {
             HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-            String url = buildUrlWithParams(pageNo, pageSize, userID, userIDMatchMode, modelName, modelNameMatchMode, type, typeMatchMode, status, statusMatchMode, cost, costMatchMode);
+            String url = buildUrlWithParams(pageNo, pageSize, username, usernameMatchMode, modelName, modelNameMatchMode, type, typeMatchMode, status, statusMatchMode, cost, costMatchMode, action, actionMatchMode);
             LOG.info("Request URL: {}", url);
 
             ResponseEntity<AssetResPagination> response = restTemplate.exchange(
@@ -54,7 +54,7 @@ public class AssetService {
 
             throw new CustomClientException(statusCode, errorMessage);
         } catch (ResourceAccessException e) {
-            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, ASSET_MICROSERVICE_ERROR);
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Asset service is currently unavailable. Please try again later.");
         }
     }
 
@@ -126,12 +126,12 @@ public class AssetService {
         }
     }
 
-    private String buildUrlWithParams(int pageNo, int pageSize, Optional<String> userID, Optional<String> userIDMatchMode, Optional<String> modelName, Optional<String> modelNameMatchMode, Optional<String> type, Optional<String> typeMatchMode, Optional<String> status, Optional<String> statusMatchMode, Optional<String> cost, Optional<String> costMatchMode) {
+    private String buildUrlWithParams(int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> modelName, Optional<String> modelNameMatchMode, Optional<String> type, Optional<String> typeMatchMode, Optional<String> status, Optional<String> statusMatchMode, Optional<String> cost, Optional<String> costMatchMode, Optional<String> action, Optional<String> actionMatchMode) {
         StringBuilder urlBuilder = new StringBuilder(String.format("%s?page=%d&pageSize=%d", assetApiUrl, pageNo, pageSize));
         LOG.info("Initial URL: {}", urlBuilder.toString());
 
-        bffService.appendOptionalParam(urlBuilder, "userID", userID);
-        bffService.appendOptionalParam(urlBuilder, "userIDMatchMode", userIDMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "username", username);
+        bffService.appendOptionalParam(urlBuilder, "usernameMatchMode", usernameMatchMode);
         bffService.appendOptionalParam(urlBuilder, "modelName", modelName);
         bffService.appendOptionalParam(urlBuilder, "modelNameMatchMode", modelNameMatchMode);
         bffService.appendOptionalParam(urlBuilder, "type", type);
@@ -140,6 +140,8 @@ public class AssetService {
         bffService.appendOptionalParam(urlBuilder, "statusMatchMode", statusMatchMode);
         bffService.appendOptionalParam(urlBuilder, "cost", cost);
         bffService.appendOptionalParam(urlBuilder, "costMatchMode", costMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "action", action);
+        bffService.appendOptionalParam(urlBuilder, "actionMatchMode", actionMatchMode);
 
         LOG.info("Final URL: {}", urlBuilder.toString());
         return urlBuilder.toString();

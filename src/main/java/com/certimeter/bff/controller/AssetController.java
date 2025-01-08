@@ -2,6 +2,7 @@ package com.certimeter.bff.controller;
 
 import com.certimeter.bff.dto.AssetDTO;
 import com.certimeter.bff.dto.AssetResPagDTO;
+import com.certimeter.bff.dto.UserDTO;
 import com.certimeter.bff.resourcemodel.Asset;
 import com.certimeter.bff.pagination.AssetResPagination;
 import com.certimeter.bff.service.AssetService;
@@ -13,22 +14,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/bff/assets")
 public class AssetController {
     private final AssetService assetService;
-    private final BffService bffService;
-    public AssetController(AssetService assetService, BffService bffService) {
+    public AssetController(AssetService assetService) {
         this.assetService = assetService;
-        this.bffService = bffService;
     }
 
     @GetMapping
     public ResponseEntity<AssetResPagDTO> getAllAssets(@RequestParam(value = "page", defaultValue = "0", required = false) int pageNo,
                                                        @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-                                                       @RequestParam Optional<String> userID,
-                                                       @RequestParam Optional<String> userIDMatchMode,
+                                                       @RequestParam Optional<String> username,
+                                                       @RequestParam Optional<String> usernameMatchMode,
                                                        @RequestParam Optional<String> modelName,
                                                        @RequestParam Optional<String> modelNameMatchMode,
                                                        @RequestParam Optional<String> type,
@@ -37,14 +37,22 @@ public class AssetController {
                                                        @RequestParam Optional<String> statusMatchMode,
                                                        @RequestParam Optional<String> cost,
                                                        @RequestParam Optional<String> costMatchMode,
+                                                       @RequestParam Optional<String> action,
+                                                       @RequestParam Optional<String> actionMatchMode,
                                                        @RequestHeader("Authorization") String accessToken) {
         String accessTokenTrunked = accessToken.substring(7);
-        AssetResPagination assets = assetService.getAllAssets(accessTokenTrunked, pageNo, pageSize, userID, userIDMatchMode, modelName, modelNameMatchMode, type, typeMatchMode, status, statusMatchMode, cost, costMatchMode);
-        List<Long> uniqueUserIds = assets.getData().stream().map(Asset::getUserID).distinct().toList();
-        Map<Long, String> usernames = bffService.getUsernamesGivenIds(accessTokenTrunked, uniqueUserIds);
+
+        AssetResPagination assets = assetService.getAllAssets(accessTokenTrunked, pageNo, pageSize, username, usernameMatchMode, modelName, modelNameMatchMode, type, typeMatchMode, status, statusMatchMode, cost, costMatchMode, action, actionMatchMode);
 
         List<AssetDTO> assetDTOs = assets.getData().stream()
-                .map(asset -> new AssetDTO(asset.getId(), asset.getModelName(), asset.getType(), asset.getStatus(), asset.getCost(), usernames.get(asset.getUserID())))
+                .map(asset -> new AssetDTO(
+                        asset.getId(),
+                        asset.getModelName(),
+                        asset.getType(),
+                        asset.getStatus(),
+                        asset.getCost(),
+                        asset.getUser() != null ? asset.getUser().getUsername() : null
+                ))
                 .toList();
 
         AssetResPagDTO assetResPagDTO = new AssetResPagDTO();

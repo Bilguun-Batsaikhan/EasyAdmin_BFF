@@ -21,5 +21,4 @@ public class UserDTO {
     private String email;
     private UserRoleEnum role;
     private LocalDate birthdate;
-    private int age;
 }
