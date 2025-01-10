@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -26,11 +27,17 @@ public class AssetHistoryService {
         this.bffService = bffService;
     }
 
-    public AssetHistoryResPagination getAllAssetHistories(String accessToken, int pageNo, int pageSize, Optional<Long> assetId, Optional<String> assetIdMatchMode, Optional<Long> adminId, Optional<String> adminIdMatchMode, Optional<Long> userId, Optional<String> userIdMatchMode, Optional<String> status, Optional<String> statusMatchMode, Optional<String> date, Optional<String> dateMatchMode, Optional<String> action, Optional<String> actionMatchMode) {
+    public AssetHistoryResPagination getAllAssetHistories(String accessToken, int pageNo, int pageSize, Optional<String> assetId, Optional<String> assetIdMatchMode,
+                                                          Optional<String> modelName, Optional<String> modelNameMatchMode,
+                                                          Optional<String> admin, Optional<String> adminMatchMode,
+                                                          Optional<String> user, Optional<String> userMatchMode,
+                                                          Optional<String> status, Optional<String> statusMatchMode,
+                                                          Optional<String> date, Optional<String> dateMatchMode,
+                                                          Optional<String> action, Optional<String> actionMatchMode) {
         try {
             HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-            String url = buildUrlWithParams(pageNo, pageSize, assetId, assetIdMatchMode, adminId, adminIdMatchMode, userId, userIdMatchMode, status, statusMatchMode, date, dateMatchMode, action, actionMatchMode);
+            String url = buildUrlWithParams(pageNo, pageSize, assetId, assetIdMatchMode, modelName, modelNameMatchMode, admin, adminMatchMode, user, userMatchMode, status, statusMatchMode, date, dateMatchMode, action, actionMatchMode);
             LOG.info("Request URL: " + url);
             ResponseEntity<AssetHistoryResPagination> response = restTemplate.exchange(
                     url,
@@ -71,14 +78,23 @@ public class AssetHistoryService {
         }
     }
 
-    private String buildUrlWithParams(int pageNo, int pageSize, Optional<Long> assetId, Optional<String> assetIdMatchMode, Optional<Long> adminId, Optional<String> adminIdMatchMode, Optional<Long> userId, Optional<String> userIdMatchMode, Optional<String> status, Optional<String> statusMatchMode, Optional<String> date, Optional<String> dateMatchMode, Optional<String> action, Optional<String> actionMatchMode) {
+    private String buildUrlWithParams(int pageNo, int pageSize,
+                                      Optional<String> assetId, Optional<String> assetIdMatchMode,
+                                      Optional<String> modelName, Optional<String> modelNameMatchMode,
+                                      Optional<String> admin, Optional<String> adminMatchMode,
+                                      Optional<String> user, Optional<String> userMatchMode,
+                                      Optional<String> status, Optional<String> statusMatchMode,
+                                      Optional<String> date, Optional<String> dateMatchMode,
+                                      Optional<String> action, Optional<String> actionMatchMode) {
         StringBuilder urlBuilder = new StringBuilder(String.format("%s/history?page=%d&pageSize=%d", assetApiUrl, pageNo, pageSize));
-        bffService.appendOptionalParam(urlBuilder, "assetId", assetId.map(String::valueOf));
+        bffService.appendOptionalParam(urlBuilder, "assetId", assetId);
         bffService.appendOptionalParam(urlBuilder, "assetIdMatchMode", assetIdMatchMode);
-        bffService.appendOptionalParam(urlBuilder, "adminId", adminId.map(String::valueOf));
-        bffService.appendOptionalParam(urlBuilder, "adminIdMatchMode", adminIdMatchMode);
-        bffService.appendOptionalParam(urlBuilder, "userId", userId.map(String::valueOf));
-        bffService.appendOptionalParam(urlBuilder, "userIdMatchMode", userIdMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "modelName", modelName);
+        bffService.appendOptionalParam(urlBuilder, "modelNameMatchMode", modelNameMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "admin", admin);
+        bffService.appendOptionalParam(urlBuilder, "adminMatchMode", adminMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "user", user);
+        bffService.appendOptionalParam(urlBuilder, "userMatchMode", userMatchMode);
         bffService.appendOptionalParam(urlBuilder, "status", status);
         bffService.appendOptionalParam(urlBuilder, "statusMatchMode", statusMatchMode);
         bffService.appendOptionalParam(urlBuilder, "date", date);

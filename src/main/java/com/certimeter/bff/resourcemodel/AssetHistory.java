@@ -17,4 +17,7 @@ public class AssetHistory {
     private AssetAction action;
     private LocalDateTime date;
     private String comment;
+    private Asset asset; // New relationship
+    private User admin;  // New relationship
+    private User user;   // New relationship
 }

@@ -56,6 +56,28 @@ public class UserService {
         }
     }
 
+    public User getUser(String accessToken, Long id) {
+        try {
+            HttpHeaders headers = bffService.createHeadersWithToken(accessToken);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            String getUrl = String.format("%s/%d", userApiUrl, id);
+            ResponseEntity<User> response = restTemplate.exchange(
+                    getUrl,
+                    HttpMethod.GET,
+                    entity,
+                    User.class
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            String errorMessage = e.getResponseBodyAsString();
+            HttpStatusCode statusCode = e.getStatusCode();
+            throw new CustomClientException(statusCode, errorMessage);
+        } catch (ResourceAccessException e) {
+            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, USER_MICROSERVICE_ERROR);
+        }
+    }
+
     private String buildUrlWithParams(int pageNo, int pageSize, Optional<String> username, Optional<String> usernameMatchMode, Optional<String> firstname, Optional<String> firstnameMatchMode, Optional<String> surname, Optional<String> surnameMatchMode, Optional<String> phoneNumber, Optional<String> phoneNumberMatchMode, Optional<String> email, Optional<String> emailMatchMode, Optional<String> role, Optional<String> roleMatchMode, Optional<String> birthdate, Optional<String> birthdateMatchMode) {
         StringBuilder urlBuilder = new StringBuilder(String.format("%s?page=%d&pageSize=%d", userApiUrl, pageNo, pageSize));
         bffService.appendOptionalParam(urlBuilder, "username", username);

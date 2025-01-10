@@ -86,6 +86,7 @@ public class AssetService {
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(updates, headers);
 
             String updateUrl = String.format("%s/%d", assetApiUrl, id);
+            LOG.info("Update URL: {}", updateUrl);
             ResponseEntity<Asset> response = restTemplate.exchange(
                     updateUrl,
                     HttpMethod.PATCH,
