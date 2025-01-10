@@ -1,4 +1,4 @@
-package com.certimeter.bff.resourcemodel;
+package com.certimeter.bff.dto;
 
 import com.certimeter.bff.enumeration.Priority;
 import com.certimeter.bff.enumeration.Status;
@@ -12,19 +12,17 @@ import java.sql.Timestamp;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Ticket {
+public class TicketDTO {
     private Long id;
-    private Long assetId;
-    private Long userId;
+    private String modelName;
+    private String username;
     private String title;
     private String context;
     private TicketType ticketType;
     private Status status;
-    private Priority priority = Priority.MEDIUM;
+    private Priority priority;
     private Timestamp issuedAt;
     private Timestamp closedAt;
     private String resolutionDetails;
     private Timestamp lastUpdatedAt;
-    private Asset asset;
-    private User user;
 }
