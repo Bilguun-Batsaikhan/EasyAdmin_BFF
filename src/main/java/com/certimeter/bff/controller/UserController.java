@@ -42,6 +42,12 @@ public class UserController {
         return new ResponseEntity<>(userService.getAllUsers(accessTokenTrunked, pageNo, pageSize, username, usernameMatchMode, firstname, firstnameMatchMode, surname, surnameMatchMode, phoneNumber, phoneNumberMatchMode, email, emailMatchMode, role, roleMatchMode, birthdate, birthdateMatchMode), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUser(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+        String accessTokenTrunked = accessToken.substring(7);
+        return ResponseEntity.ok(userService.getUser(accessTokenTrunked, id));
+    }
+
     @PostMapping
     public ResponseEntity<String> addUser(@RequestBody User user, @RequestHeader("Authorization") String accessToken) {
         String accessTokenTrunked = accessToken.substring(7);

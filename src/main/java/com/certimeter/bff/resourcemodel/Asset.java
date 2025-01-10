@@ -19,4 +19,5 @@ public class Asset {
     private BigDecimal cost;
     private Long userID;
     private User user;
+    private boolean deleted;
 }
