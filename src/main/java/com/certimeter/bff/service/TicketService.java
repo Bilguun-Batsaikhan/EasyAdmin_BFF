@@ -177,6 +177,8 @@ public class TicketService {
         bffService.appendOptionalParam(urlBuilder, "ticketTypeMatchMode", ticketTypeMatchMode);
         bffService.appendOptionalParam(urlBuilder, "status", status);
         bffService.appendOptionalParam(urlBuilder, "statusMatchMode", statusMatchMode);
+        bffService.appendOptionalParam(urlBuilder, "priority", priority);
+        bffService.appendOptionalParam(urlBuilder, "priorityMatchMode", priorityMatchMode);
 
         return urlBuilder.toString();
     }
