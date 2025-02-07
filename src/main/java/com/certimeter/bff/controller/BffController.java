@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/bff")
 public class BffController {
@@ -27,5 +29,18 @@ public class BffController {
     public ResponseEntity<RefreshResponse> refresh(@RequestHeader("Authorization") String accessToken, @RequestBody RefreshRequest refreshRequest) {
         String accessTokenTrunked = accessToken.substring(7);
         return ResponseEntity.ok(bffService.refresh(accessTokenTrunked, refreshRequest));
+    }
+
+    @PostMapping(value = "/auth/recovery", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, String>> recovery(@RequestBody Map<String, String> email) {
+        bffService.recovery(email);
+        return ResponseEntity.ok(Map.of("message", "Recovery email sent."));
+    }
+
+    @PostMapping(value = "/auth/reset", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, String>> reset(@RequestHeader("Authorization") String accessToken, @RequestBody Map<String, String> resetRequest) {
+        String accessTokenTrunked = accessToken.substring(7);
+        bffService.reset(accessTokenTrunked, resetRequest);
+        return ResponseEntity.ok(Map.of("message", "Password reset."));
     }
 }
