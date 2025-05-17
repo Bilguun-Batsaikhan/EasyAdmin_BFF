@@ -25,6 +25,8 @@ public class BffService {
     private String loginApiUrl;
     @Value("${api.user.path}")
     private String userApiUrl;
+    @Value("${api.passrecover.path}")
+    private String passRecoveryApiUrl;
     private final RestTemplate restTemplate;
 
     public BffService(RestTemplate restTemplate) {
@@ -82,7 +84,7 @@ public class BffService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(email, headers);
 
-            restTemplate.exchange("http://localhost:8080/auth/password/recover", HttpMethod.POST, entity, Void.class);
+            restTemplate.exchange(passRecoveryApiUrl + "/recover", HttpMethod.POST, entity, Void.class);
         } catch (HttpClientErrorException e) {
             String errorMessage = e.getResponseBodyAsString();
             HttpStatusCode statusCode = e.getStatusCode();
@@ -105,7 +107,7 @@ public class BffService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(reset, headers);
 
-            restTemplate.exchange("http://localhost:8080/auth/password/reset", HttpMethod.PATCH, entity, Void.class);
+            restTemplate.exchange(passRecoveryApiUrl + "/reset", HttpMethod.PATCH, entity, Void.class);
         } catch (HttpClientErrorException e) {
             String errorMessage = e.getResponseBodyAsString();
             HttpStatusCode statusCode = e.getStatusCode();
