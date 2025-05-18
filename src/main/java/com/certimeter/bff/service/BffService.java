@@ -34,21 +34,33 @@ public class BffService {
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<LoginRequest> entity = new HttpEntity<>(loginRequest, headers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<LoginRequest> entity = new HttpEntity<>(loginRequest, headers);
 
-            ResponseEntity<LoginResponse> exchange = restTemplate.exchange(loginApiUrl, HttpMethod.POST, entity, LoginResponse.class);
-            return exchange.getBody();
-        } catch (HttpClientErrorException e) {
-            String errorMessage = e.getResponseBodyAsString();
-            HttpStatusCode statusCode = e.getStatusCode();
-            throw new CustomClientException(statusCode, errorMessage);
-        } catch (ResourceAccessException e) {
-            throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Login service is currently unavailable. Please try again later.");
+        int retries = 2;
+        int delayMillis = 4000; // 4 seconds between retries
+
+        for (int i = 0; i < retries; i++) {
+            try {
+                ResponseEntity<LoginResponse> exchange = restTemplate.exchange(loginApiUrl, HttpMethod.POST, entity, LoginResponse.class);
+                return exchange.getBody();
+            } catch (HttpClientErrorException e) {
+                String errorMessage = e.getResponseBodyAsString();
+                HttpStatusCode statusCode = e.getStatusCode();
+                throw new CustomClientException(statusCode, errorMessage);
+            } catch (ResourceAccessException e) {
+                if (i == retries - 1) {
+                    throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Login service is currently unavailable. Please try again later.");
+                }
+                try {
+                    Thread.sleep(delayMillis); // wait before retrying
+                } catch (InterruptedException ignored) {}
+            }
         }
+        throw new CustomClientException(HttpStatus.SERVICE_UNAVAILABLE, "Unexpected login failure.");
     }
+
 
     public RefreshResponse refresh(String accessToken, RefreshRequest refreshRequest) {
         try {
