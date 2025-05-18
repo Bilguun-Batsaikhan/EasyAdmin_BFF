@@ -15,12 +15,4 @@ public class BffApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BffApplication.class, args);
 	}
-	@Bean
-	public RestTemplate restTemplate() {
-		RestTemplate restTemplate = new RestTemplate();
-		HttpClient httpClient = HttpClientBuilder.create().build();
-		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-		restTemplate.setRequestFactory(requestFactory);
-		return restTemplate;
-	}
 }
